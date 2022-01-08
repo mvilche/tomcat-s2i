@@ -118,9 +118,13 @@ fi
 
 if [ "$projectType" == "GRADLE" ]; then
 echo "----> START COMPILE PROJECT $projectType"
+if [ -f /opt/src/gradlew ]; then
+echo "----> EXECUTING ./gradlew clean build ${GRADLE_OPTS}"
+cd /opt/src && ./gradlew clean build ${GRADLE_OPTS}
+else
 echo "----> EXECUTING gradle clean build ${GRADLE_OPTS}"
 cd /opt/src && gradle clean build ${GRADLE_OPTS}
-
+fi
 ERR=$?
     if [ $ERR -ne 0 ]; then
 echo "---> COMPILE ERROR $ERR"
