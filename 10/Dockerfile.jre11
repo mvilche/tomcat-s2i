@@ -1,0 +1,44 @@
+FROM alpine:3.15
+
+ENV JDK_VERSION=openjdk11-jre \
+JAVA_VERSION_CHECK=11 \
+TOMCAT_VERSION=https://dlcdn.apache.org/tomcat/tomcat-10/v10.0.14/bin/apache-tomcat-10.0.14.tar.gz
+
+LABEL autor="Martin Vilche <mfvilche@gmail.com>" \
+      io.k8s.description="Runtime image jdk alpine" \
+      io.k8s.display-name="Java Applications" \
+      io.openshift.tags="builder,java,maven,runtime" \
+      io.openshift.expose-services="8080,8009,8778,8443" \
+      io.openshift.s2i.scripts-url="image:///usr/libexec/s2i" \
+      tomcat.deployments-dir="/opt/tomcat/webapps"
+
+RUN apk add --update --no-cache $JDK_VERSION wget findutils curl rsync bash tzdata msttcorefonts-installer fontconfig && \
+    update-ms-fonts && \
+    fc-cache -f && \
+mkdir /opt/tomcat && wget $TOMCAT_VERSION --progress=bar:force -O /tmp/tomcat.tar.gz && \
+tar zxvf /tmp/tomcat.tar.gz -C /opt/tomcat --strip-components 1 && rm -rf /tmp/tomcat.tar.gz
+
+COPY drivers/*.jar /opt/tomcat/lib/
+
+COPY plugins/jolokia-jvm-1.6.2-agent.jar /usr/libexec/s2i/jolokia-jvm-1.6.2-agent.jar
+
+COPY plugins/jmx_prometheus-0.16.1.jar /usr/libexec/s2i/prometheus.jar
+
+COPY plugins/prometheus-config.yml /usr/libexec/s2i/prometheus-config.yml
+
+COPY s2i/bin/ /usr/libexec/s2i
+
+RUN rm -rf /opt/tomcat/webapps/* && touch /etc/localtime /etc/timezone && \
+chown -R 1001 /opt /usr/libexec/s2i /etc/localtime /etc/timezone  && \
+chgrp -R 0 /opt /usr/libexec/s2i /etc/localtime /etc/timezone  && \
+chmod -R g=u /opt /usr/libexec/s2i /etc/localtime /etc/timezone && \
+chmod +x /opt/tomcat/bin/* /usr/libexec/s2i/*
+
+WORKDIR /opt/tomcat
+
+USER 1001:0
+
+EXPOSE 8080 8443 8009 8778
+
+CMD ["/usr/libexec/s2i/run"]
+
