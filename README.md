@@ -1,30 +1,85 @@
-# Tomcat s2i images 
+# Tomcat s2i images
 
 
-# Funcionalidades:
+## Alpine
+## Openjdk 11,8
+
+![Docker Stars](https://img.shields.io/docker/stars/mvilche/java-microservices-s2i.svg)
+![Docker Pulls](https://img.shields.io/docker/pulls/mvilche/java-microservices-s2i.svg)
+![Docker Automated](https://img.shields.io/docker/cloud/automated/mvilche/java-microservices-s2i)
+![Docker Build](https://img.shields.io/docker/cloud/build/mvilche/java-microservices-s2i)
+
+
+# Features
 
 - Non-root
-- Openshift compatible
-- Jolokia Agent
-- Maven 
+- Okd Ready
+- Kubernetes Ready
+- S2i build images
+- S2i runtime images
+- Maven
 - Gradle
-- Mkdocs integracion
+- Jolokia Java monitoring
+- Prometheus Java monitoring
 
-### Variables
+### Deploy Environments 
 
 
-| Variable | Detalle |
+| Environment | Details |
 | ------ | ------ |
-| TIMEZONE | Define la zona horaria a utilizar (America/Montevideo, America/El_salvador) |
-| CUSTOM_JAVA_OPTS | Define parametros de la jvm |
-| NEXUS_MIRROR_URL | Define url repositorio nexus para la descarga de dependencias |
-| EXTRA_REPO | Define url repositorio git extra compila previo |
-| TAG_VERSION | Variable usada en el proceso de build para definir la version |
-| MVN_OPTS | Variable usada argumentos adicionales maven |
-| MKDOCS_DIR | Directorio donde se encuentra mkdocs.yml - Ejemplo: documentation |
-| MKDOCS_CONTEXT_PATH | Nombre del context path donde instalará la documentación. Por defecto es / - Ejemplo: documentation |
+| TIMEZONE | Set Timezone (America/Montevideo, America/El_salvador) |
+| JAVA_OPTS | set JAVA_OPTS options|
+| APP_OPTIONS | set extra arguments when application start |
+| WAITFOR_HOST | set name host |
+| WAITFOR_PORT | set port for WAITFOR_HOST |
+| JOLOKIA_ENABLE | Enable jolokia jmx monitoring|
+| PROMETHEUS_ENABLE | Enable prometheus jmx monitoring |
 
 
+
+### Build Environments 
+
+
+| Environment | Details |
+| ------ | ------ |
+| MVN_OPTS | Maven options  |
+| GRADLE_OPTS | Gradle options  |
+| NEXUS_MIRROR_URL | Nexus repository override repository in pom.xml |
+
+
+### Generate builder image
+
+```console
+Example build tomcat 10 with opendjdk 11
+
+ docker build -t tomcat-s2i:10-jdk11 -f 10/Dockerfile.jdk11 contrib
+
+```
+
+### Tomcat application image use s2i
+
+```console
+
+s2i build https://github.com/myuser/java-sample-app.git tomcat-s2i:10-jdk11 myapp:latest --incremental
+
+```
+
+
+### Run application
+
+```console
+
+docker run -p 8080:8080 myapp:latest
+
+```
+
+### How use s2i
+
+```console
+
+https://github.com/openshift/source-to-image
+
+```
 
 License
 ----
