@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+# S2I run script for the 'springboot-sti' image.
+# The run script executes the server that runs your application.
+#
+# For more information see the documentation:
+#	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
+#
+
+export TOMCAT_DIR=/opt/tomcat
+war=$(ls -1 /opt/deploy/*.war 2>/dev/null | wc -l)
+
+	while true
+	do
+if [ $war == 1 ]; then
+echo "---> APP WAR FOUND!"
+ls -lh /opt/deploy/*.war
+echo "---> COPY TO $TOMCAT_DIR/webapps"
+cp -rf /opt/deploy/* $TOMCAT_DIR/webapps
+rm -rf /opt/deploy/*.war
+echo "---> FINISH INSTALL WEBAPPS"
+ls -lh $TOMCAT_DIR/webapps
+fi
+	sleep 10
+	done

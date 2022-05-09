@@ -74,4 +74,20 @@ export JAVA_OPTS="$JMX_METRICS -Djava.awt.headless=true -XX:+UseContainerSupport
 fi
 fi
 
+if [ "$AUTO_DEPLOY_FOLDER" == 1 ]; then
+echo "----> DETECTED AUTO_DEPLOY_FOLDER"
+/usr/libexec/s2i/auto_deploy &>>/dev/stdout &
+autodeploy=$!
+$TOMCAT_DIR/bin/catalina.sh run &>>/dev/stdout &
+tomcat=$!
+
+	while true
+	do
+	kill -0 $autodeploy &>/dev/null
+	kill -0 $tomcat &>/dev/null
+	sleep 5
+	done
+
+fi
+
 exec $TOMCAT_DIR/bin/catalina.sh run 
